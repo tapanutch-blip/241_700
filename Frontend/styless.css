@@ -107,12 +107,11 @@ input[type="radio"], input[type="checkbox"] {
     padding: 12px;
     background-color: var(--primary-color);
     color: white;
-    border: none;
     border-radius: 8px;
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 600;   
     cursor: pointer;
-    transition: background 0.3s ease;
+    margin: auto;
 }
 
 .button:hover {
@@ -122,4 +121,20 @@ input[type="radio"], input[type="checkbox"] {
 
 .button:active {
     transform: translateY(1px);
+}
+.message {
+    background-color: lightgray;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    display: none;
+}
+
+.message.success {
+    background-color: #24ff57;
+    display: block;
+}
+.message.danger {
+    background-color: #f8d7da;
+    display: block;
 }
