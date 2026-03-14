@@ -4,15 +4,16 @@ window.onload = async () => {
 }
 
 const loadData = async () => {
-    const response = await axios.get(`${BASE_URL}/users`);
-    console.log(response.data);
+    const response = await axios.get(`${BASE_URL}/users`); //axiosใช้จัดการlibaryเพื่อดึงข้อมูล
+    console.log(response.data); //เรียกใช้ด้วย.data
     const userDOM = document.getElementById("user");
     let htmlData = '<div>';
     for (let i = 0; i < response.data.length; i++) {
         let user = response.data[i];
         htmlData += ` <div>
-        ${user.firstname} ${user.lastname}
-        <button>Edit</button>
+        ${user.id} ${user.firstname} ${user.lastname} ${user.gender}
+
+        <a href="index.html?id=${user.id}">Edit</a>
         <button class='delete' data-id='${user.id}'>Delete</button>
         </div>`
     }
