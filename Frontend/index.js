@@ -1,130 +1,143 @@
 
-    const BASE_URL = 'http://localhost:4000';
+const BASE_URL='http://localhost:8000';
+let mode='CREATE';//Create,Update โหมดเพิ่มข้อมูล
+let selectedID='';
 
-let mode = 'CREATE';
-let selectedID = '';
+window.onload=async()=>{
+    const urlParams=new URLSearchParams(window.location.search);
+    const id = urlParams.get('id');
+    console.log('id',id);
+    if(id){
+        mode='EDIT';
+        selectedID=id;
+        
+        try{
+            const response = await axios.get(`${BASE_URL}/users/${id}`);
+            //1. ดึงข้อมูลuserเก่าออกมาแสดง
+            //console.log('reponse',response.data);
+            const user=response.data;
+            //2. จะนำข้อมูลuserที่ได้มาแสดงในฟอร์ม เพื่อแก้ไขข้อมูล
+            let firstNameDOM = document.querySelector('input[name=firstname]');
+            let lastNameDOM = document.querySelector('input[name=lastname]');
+            let ageDOM = document.querySelector('input[name=age]');
+            let descriptionDOM = document.querySelector('textarea[name=description]');
 
-const messageDOM = document.getElementById('message');
+            firstNameDOM.value=user.firstname;
+            lastNameDOM.value=user.lastname;
+            ageDOM.value=user.age;
+            descriptionDOM.value=user.description;
+            
 
-window.onload = async () => {
+            let genderDOMs = document.querySelectorAll('input[name=gender]');
+            let interesDOMs = document.querySelectorAll('input[name=interests]');
 
-    const lastID = localStorage.getItem('lastEmployee');
-
-    if(lastID){
-        loadUser(lastID);
+            for(let i=0; i<genderDOMs.length;i++){
+                if(genderDOMs[i].value==user.gender){
+                    genderDOMs[i].checked=true;
+                }
+            }
+            for(let i=0;i<interesDOMs.length;i++){
+                if (user.interests && user.interests.split(',').includes(interesDOMs[i].value)){
+                    interesDOMs[i].checked=true;
+                }
+            }
+            
+        }catch(error){
+            console.log('error',error)
+        }
+        
     }
-
+}
+const validateData = (userData) =>{
+    let errors = [];
+    if(!userData.firstName){
+        errors.push('กรุณากรอกชื่อ');
+    }
+    if(!userData.lastName){
+        errors.push('กรุณากรอกนามสกุล');
+    }
+    if(!userData.age){
+        errors.push('กรุณากรอกอายุ');
+    }
+    if(!userData.gender){
+        errors.push('กรุณากรอกเพศ');
+    }
+    if(!userData.interests){
+        errors.push('กรุณากรอกงานอดิเรก');
+    }
+    if(!userData.description){
+        errors.push('กรุณากรอกคำอธิบาย');
+    }
+    return errors;
 }
 
-//
-// VALIDATION
-//
-const validateData = (userData) => {
-
-    let errors = [];
-
-    if (!userData.firstname) errors.push('กรุณากรอกชื่อ');
-    if (!userData.lastname) errors.push('กรุณากรอกนามสกุล');
-    if (!userData.dept) errors.push('กรุณาเลือกแผนก');
-    if (!userData.checkIn) errors.push('กรุณากรอกเวลาเข้างาน');
-    if (!userData.checkOut) errors.push('กรุณากรอกเวลาออกงาน');
-    if (!userData.workdate) errors.push('กรุณาเลือกวันที่ทำงาน');
-
-    return errors;
-};
-
-//
-// LOAD USER
-//
-const loadUser = async (id) => {
-
-    try {
-
-        const response = await axios.get(`${BASE_URL}/EmployeeForm/${id}`);
-        const user = response.data;
-
-        document.querySelector('[name=firstname]').value = user.Firstname;
-        document.querySelector('[name=lastname]').value = user.Lastname;
-        document.querySelector('[name=dept]').value = user.Dept;
-        document.querySelector('[name=checkin]').value = user.CheckIn;
-        document.querySelector('[name=checkout]').value = user.CheckOut;
-        document.querySelector('[name=workdate]').value = user.WorkDate;
-
-        mode = 'UPDATE';
-        selectedID = id;
-
-    } catch (error) {
-        console.log(error);
-    }
-
-};
-
-//
-// SUBMIT FORM
-//
 const submitData = async () => {
+    let firstNameDOM = document.querySelector('input[name=firstname]');
+    let lastNameDOM = document.querySelector('input[name=lastname]');
+    let ageDOM = document.querySelector('input[name=age]');
+    let genderDOM = document.querySelector('input[name=gender]:checked')||{};
+    let interesDOMs = document.querySelectorAll('input[name=interests]:checked')||{};
+    let descriptionDOM = document.querySelector('textarea[name=description]');
 
-    let firstnameDOM = document.querySelector('[name=firstname]');
-    let lastnameDOM = document.querySelector('[name=lastname]');
-    let deptDOM = document.querySelector('[name=dept]');
-    let checkinDOM = document.querySelector('[name=checkin]');
-    let checkoutDOM = document.querySelector('[name=checkout]');
-    let workdateDOM = document.querySelector('[name=workdate]');
+    let messageDOM = document.getElementById('message')
 
     try {
+        let interest = ''
+        for (let i = 0; i < interesDOMs.length; i++) {
+            interest += interesDOMs[i].value
+            if (i != interesDOMs.length - 1) {
+                interest += ','
+            }
+        }
 
-    let userData = {
-        firstname: firstnameDOM.value,
-        lastname: lastnameDOM.value,
-        workdate: workdateDOM.value,
-        dept: deptDOM.value,
-        checkin: checkinDOM.value,
-        checkout: checkoutDOM.value
-};  
-        const errors = validateData(userData);
+        let userData = {
+            firstName: firstNameDOM.value,
+            lastName: lastNameDOM.value,
+            age: ageDOM.value,
+            gender: genderDOM.value,
+            description: descriptionDOM.value,
+            interests: interest
+        }
+        console.log("submitData", userData);
 
-        if (errors.length > 0) {
-            throw {
+        if((validateData(userData)).length > 0){
+            throw{
                 message: 'กรุณากรอกข้อมูลให้ครบถ้วน',
-                errors: errors
-            };
+                errors: validateData(userData)
+            }
+        }
+        if(mode=='CREATE'){
+            const response = await axios.post(`${BASE_URL}/users`, userData);
+            console.log('response', response.data);
+        }else{
+            const response=await axios.put(`${BASE_URL}/users/${selectedID}`,userData);
+            console.log('response',response.data);
         }
 
-        if (mode === 'CREATE') {
+        messageDOM.innerText = 'บันทึกข้อมูลสำเร็จ';
+        messageDOM.className = 'message success';
+        } catch (error) {
+        console.log('Error message',error.message);
+        console.log('Error details',error.error);
 
-            const response = await axios.post(`${BASE_URL}/EmployeeForm`, userData);
-
-            localStorage.setItem('lastEmployee', response.data.id);
-
-            window.location.href = "dashboard.html";
-
-        } else {
-
-            await axios.put(`${BASE_URL}/EmployeeForm/${selectedID}`, userData);
-
-            window.location.href = "dashboard.html";
-
+        if (error.response) {
+            console.log('Error response:', error.response.data.message);
+            error.message=error.response.data.message
+            error.errors=error.response.data.errors
         }
 
-    } catch (error) {
-
-        console.log(error);
-
-        let htmlData = `<div>${error.message}</div>`;
-
-        if (error.errors) {
-
-            htmlData += '<ul>';
-
-            error.errors.forEach(err => {
-                htmlData += `<li>${err}</li>`;
-            });
-
-            htmlData += '</ul>';
+        let htmlData = '<div>'
+        htmlData += `<div>${error.message}</div>`;
+        htmlData += '<ul>'
+        if (error.errors && error.errors.length > 0) {
+            for(let i=0;i<error.errors.length;i++){
+                htmlData += `<li>${error.errors[i]}</li>`;
+            }
         }
+        htmlData += '</ul>'
+        htmlData += '</div>';
 
         messageDOM.innerHTML = htmlData;
-        messageDOM.className = 'message danger';
+        messageDOM.className = 'message danger'
     }
-
-};
+}
