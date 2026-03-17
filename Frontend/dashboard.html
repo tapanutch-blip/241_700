@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+if(!localStorage.getItem("user_id")){
+    window.location.href = "signin.html";
+}
+</script>
+
+
+<style>
+body { margin:0; font-family:Arial; background:#f0ede8; }
+.container { display:flex; height:100vh; }
+
+/* sidebar */
+.sidebar { width:260px; background:#bfbfbf; padding:20px; box-sizing:border-box; display:flex; flex-direction:column; }
+.profile { text-align:center; margin-bottom:20px; }
+.profile-circle { width:60px; height:60px; border-radius:50%; background:#ddd; margin:auto; }
+.name { margin-top:10px; font-weight:bold; }
+.menu { background:white; padding:10px; border-radius:6px; margin-top:10px; }
+.menu h4 { margin:0; background:#777; color:white; padding:5px; border-radius:6px; font-size:14px; }
+.menu ul { list-style:none; padding:10px; margin:0; }
+.menu li { margin:4px 0; font-size:13px; }
+.menu li.label { font-weight:bold; color:#555; margin-top:8px; }
+.menu li.value { color:#222; padding-left:4px; border-left:3px solid #ddd; margin-left:2px; }
+.logout { margin-top:auto; background:#888; color:white; border:none; width:100%; padding:8px; border-radius:20px; cursor:pointer; }
+
+/* main */
+.main { flex:1; padding:40px; }
+.card { background:white; padding:20px; border-radius:6px; max-width:500px; }
+.row { display:flex; gap:20px; margin-bottom:16px; }
+.field { display:flex; flex-direction:column; gap:4px; }
+label { font-size:14px; font-weight:bold; color:#555; }
+input { padding:6px 10px; border:1px solid #ccc; border-radius:4px; background:#f9f9f9; min-width:180px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="profile">
+      <div class="profile-circle"></div>
+      <div class="name" id="info-fullname">Firstname Lastname</div>
+    </div>
+
+    <div class="menu">
+      <h4>&#10003; Employee Information</h4>
+      <ul>
+        <li class="label">Firstname Lastname</li>
+        <li class="value" id="side-name">-</li>
+        <li class="label">Dept</li>
+        <li class="value" id="side-dept">-</li>
+        <li class="label">Workdate</li>
+        <li class="value" id="side-date">-</li>
+        <li class="label">CheckIn</li>
+        <li class="value" id="side-checkin">-</li>
+        <li class="label">CheckOut</li>
+        <li class="value" id="side-checkout">-</li>
+      </ul>
+    </div>
+
+    <button class="logout" onclick="handleLogout()">Log-Out</button>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="card">
+
+      <div class="row">
+        <div class="field">
+          <label>CheckIn</label>
+          <input type="text" id="d-checkin" readonly>
+        </div>
+        <div class="field">
+          <label>CheckOut</label>
+          <input type="text" id="d-checkout" readonly>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>Workdate</label>
+          <input type="text" id="info-date" readonly style="min-width:300px;">
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>OT Hour</label>
+          <input type="text" id="d-ot" readonly>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>Total Pay</label>
+          <input type="text" id="d-salary" readonly>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+const BASE_URL = "http://localhost:4000";
+
+window.onload = async () => {
+  const id = localStorage.getItem("lastEmployee");
+  if (!id) { 
+    alert("ไม่พบข้อมูลพนักงาน"); return; 
+    window.location.href="signin.html";
+    return;
+}
+
+  try {
+    const res = await axios.get(`${BASE_URL}/EmployeeForm/${id}`);
+    const data = res.data;
+
+    const firstname = localStorage.getItem('firstname') || "";
+    const lastname  = localStorage.getItem('lastname')  || "";
+    const fullname  = `${firstname} ${lastname}`.trim() || "-";
+    const dept      = data.dept      || "-";
+    const checkin   = data.checkin   || "-";
+    const checkout  = data.checkout  || "-";
+    const otHours   = data.ot_hours  || "-";
+    const totalPay  = data.total_pay || "-";
+    const workdate  = data.workdate
+      ? new Date(data.workdate).toLocaleDateString('th-TH')
+      : "-";
+
+    // Main
+    document.getElementById("info-fullname").innerText = fullname;
+    document.getElementById("info-date").value         = workdate;
+    document.getElementById("d-checkin").value         = checkin;
+    document.getElementById("d-checkout").value        = checkout;
+    document.getElementById("d-ot").value              = otHours !== "-" ? otHours + " ชม." : "-";
+    document.getElementById("d-salary").value          = totalPay !== "-" ? Number(totalPay).toLocaleString('th-TH') + " บาท" : "-";
+
+    // Sidebar
+    document.getElementById("side-name").innerText     = fullname;
+    document.getElementById("side-dept").innerText     = dept;
+    document.getElementById("side-date").innerText     = workdate;
+    document.getElementById("side-checkin").innerText  = checkin;
+    document.getElementById("side-checkout").innerText = checkout;
+
+  } catch (err) {
+    console.error("Dashboard Error:", err);
+    alert("โหลดข้อมูลไม่สำเร็จ");
+  }
+};
+
+function handleLogout() {
+  localStorage.clear();
+  window.location.href = "signin.html";
+}
+</script>
+
+</body>
+</html>

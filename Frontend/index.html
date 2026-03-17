@@ -1,71 +1,96 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
-
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="styless.css">
-
+<meta charset="UTF-8">
+<title>Employee System</title>
+<link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
-    <div class="container">
-        <a href="user.html"> Go to user management </a>
-        <div class="header">
-            Register form
-        </div>
-        <div class="flex form-input">
-            <div class="header-form">ชื่อ</div>
-            <input class="form" name="firstname" type="text">
-        </div>
-        <div class="flex form-input">
-            <div class="header-form">นามสกุล</div>
-            <input class="form" name="lastname" type="text">
-        </div>
-        <div class="flex form-input">
-            <div class="header-form">อายุ</div> 
-            <input class="form" name="age" type="number" min="0" max="100">
-        </div>
-        <div class="flex gender form-input">
-            <div class="header-form">เพศ</div> 
-            <div class="flex">
-                <div>
-                   <input type="radio" name="gender" value="male"> ชาย
-                </div>
-                <div>
-                    <input type="radio" name="gender" value="female"> หญิง
-                </div>
-                <div>
-                    <input type="radio" name="gender" value="other"> อื่นๆ
-                </div>
-            </div>
-        </div>
-        <div class="form-input">
-            งานอดิเรก
-            <div>
-                <input name="interests" type="checkbox" value="อ่านหนังสือ"> อ่านหนังสือ
-            </div>
-            <div>
-                <input name="interests" type="checkbox" value="ดูหนัง"> ดูหนัง
-            </div>
-            <div>
-                <input name="interests" type="checkbox" value="ฟังเพลง"> ฟังเพลง
-            </div>
-        </div>
-        <div class="form-input">
-            คำอธิบาย
-            <textarea name="description"></textarea>
-        </div>
-        
-    <div class="center">
-        <button onclick="submitData()" class="button">ส่งข้อมูล</button>
-    </div>
 
-    <div id="message" class="message"></div>
+<!-- LOGIN -->
+<div id="page-signin" class="page active">
+<div class="card">
+<h2>Sign In</h2>
 
-    </div>
+<input type="text" id="si-user" placeholder="Username">
+<input type="password" id="si-pass" placeholder="Password">
 
-    <script src="https://cdn.jsdelivr.net/npm/axios@1.13.2/dist/axios.min.js"></script>
-    <script src="index.js"></script>
+<button onclick="doSignIn()">Login</button>
+
+<p class="alert" id="signin-alert"></p>
+</div>
+</div>
+
+
+<!-- SALARY FORM -->
+<div id="page-salary" class="page">
+<div class="card">
+
+<h2>Employee Salary Form</h2>
+
+<label>Firstname</label>
+<input type="text" id="firstname">
+
+<label>Lastname</label>
+<input type="text" id="lastname">
+
+<label>Department</label>
+<select id="dept" onchange="setSalaryByDept()">
+<option value="">เลือกแผนก</option>
+<option value="HR">HR</option>
+<option value="IT">IT</option>
+<option value="Sale">Sale</option>
+<option value="Marketing">Marketing</option>
+</select>
+
+<label>เงินเดือนพื้นฐาน</label>
+<input type="text" id="salary" readonly>
+
+<label>Work Date</label>
+<input type="date" id="sal-date">
+
+<label>Check-In</label>
+<input type="time" id="checkin">
+
+<label>Check-Out</label>
+<input type="time" id="checkout">
+
+<button onclick="doSalarySubmit()">Submit</button>
+
+<p class="alert" id="salary-alert"></p>
+
+</div>
+</div>
+
+
+<!-- DASHBOARD -->
+<div id="page-dashboard" class="page">
+<div class="card">
+
+<h2>Employee Dashboard</h2>
+
+<p>ชื่อ: <span id="info-fullname"></span></p>
+<p>แผนก: <span id="info-dept"></span></p>
+<p>วันที่: <span id="info-date"></span></p>
+
+<hr>
+
+<p>Check-In: <span id="info-checkin"></span></p>
+<p>Check-Out: <span id="info-checkout"></span></p>
+
+<p>เวลาทำงาน: <span id="info-hours"></span></p>
+<p>OT: <span id="info-ot"></span></p>
+<p>เงินเดือนรวม: <span id="info-salary"></span></p>
+
+<button onclick="doLogout()">Logout</button>
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="js/script.js"></script>
+
 </body>
 </html>
